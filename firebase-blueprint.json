@@ -1,0 +1,28 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A product listed in the shop",
+      "type": "object",
+      "properties": {
+        "externalId": { "type": "string" },
+        "name": { "type": "string" },
+        "image": { "type": "string" },
+        "originalPrice": { "type": "string" },
+        "discountPrice": { "type": "string" },
+        "category": { "type": "string" },
+        "badge": { "type": "string" },
+        "affiliateUrl": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "image"]
+    }
+  },
+  "firestore": {
+    "/products": {
+      "schema": "Product",
+      "description": "Collection of products"
+    }
+  }
+}

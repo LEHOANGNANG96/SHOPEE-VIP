@@ -1,0 +1,176 @@
+[
+  {
+    "id": "thoi-trang-nu",
+    "name": "Thời Trang Nữ",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ra0g-m734thcz70bce7",
+    "count": 8626
+  },
+  {
+    "id": "thoi-trang-nam",
+    "name": "Thời Trang Nam",
+    "image": "https://cf.shopee.vn/file/vn-11134207-81ztc-mkag8akwwyrnb7",
+    "count": 4513
+  },
+  {
+    "id": "the-thao-and-da-ngoai",
+    "name": "Thể Thao & Dã Ngoại",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ra0g-m8ln2fkvwoku4a",
+    "count": 2622
+  },
+  {
+    "id": "thoi-trang-tre-em-and-tre-so-sinh",
+    "name": "Thời trang trẻ em & trẻ sơ sinh",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ras8-mbwqihkx5g8a28",
+    "count": 601
+  },
+  {
+    "id": "phu-kien-thoi-trang",
+    "name": "Phụ Kiện Thời Trang",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7r98o-lyxfovr8xcgd5d",
+    "count": 3698
+  },
+  {
+    "id": "sac-dep",
+    "name": "Sắc Đẹp",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ra0g-mak2w8nj2lzsf6",
+    "count": 6578
+  },
+  {
+    "id": "giay-dep-nam",
+    "name": "Giày Dép Nam",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-mia256vkfd34a5",
+    "count": 1696
+  },
+  {
+    "id": "tui-vi-nam",
+    "name": "Túi Ví Nam",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-mj85tsu4fv9ec2",
+    "count": 218
+  },
+  {
+    "id": "cham-soc-thu-cung",
+    "name": "Chăm Sóc Thú Cưng",
+    "image": "https://cf.shopee.vn/file/cn-11134207-7r98o-lkz7ba9dt29928",
+    "count": 148
+  },
+  {
+    "id": "giay-dep-nu",
+    "name": "Giày Dép Nữ",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7r98o-lxt6ztci20uxe4",
+    "count": 862
+  },
+  {
+    "id": "dong-ho",
+    "name": "Đồng Hồ",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7r98o-lphg5hnshcmt31",
+    "count": 725
+  },
+  {
+    "id": "du-lich-and-hanh-ly",
+    "name": "Du lịch & Hành lý",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7r98o-lz1q48iz2rhd82",
+    "count": 184
+  },
+  {
+    "id": "me-and-be",
+    "name": "Mẹ & Bé",
+    "image": "https://cf.shopee.vn/file/cn-11134207-7ras8-m4fq2r1agpi118",
+    "count": 921
+  },
+  {
+    "id": "tui-vi-nu",
+    "name": "Túi Ví Nữ",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-mgfe6arropvy51",
+    "count": 1712
+  },
+  {
+    "id": "nha-cua-and-doi-song",
+    "name": "Nhà cửa & Đời sống",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7r98o-lml5h6rg1fq7ca",
+    "count": 8223
+  },
+  {
+    "id": "thiet-bi-dien-gia-dung",
+    "name": "Thiết Bị Điện Gia Dụng",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-mez9vd3qihos15",
+    "count": 367
+  },
+  {
+    "id": "thiet-bi-am-thanh",
+    "name": "Thiết Bị Âm Thanh",
+    "image": "https://cf.shopee.vn/file/sg-11134201-22120-8y34mfft3dlv90",
+    "count": 3042
+  },
+  {
+    "id": "dien-thoai-and-phu-kien",
+    "name": "Điện Thoại & Phụ Kiện",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-mg4xycw364nc71",
+    "count": 6382
+  },
+  {
+    "id": "cameras-and-flycam",
+    "name": "Cameras & Flycam",
+    "image": "https://cf.shopee.vn/file/sg-11134201-825ba-mfx08rhzogei91",
+    "count": 350
+  },
+  {
+    "id": "o-to",
+    "name": "Ô tô",
+    "image": "https://cf.shopee.vn/file/sg-11134201-23020-c99qkoxb12nv4b",
+    "count": 593
+  },
+  {
+    "id": "so-thich-and-suu-tam",
+    "name": "Sở thích & Sưu tầm",
+    "image": "https://cf.shopee.vn/file/sg-11134201-7rdxa-mdsz10gdbp2c1e",
+    "count": 692
+  },
+  {
+    "id": "mo-to-xe-may",
+    "name": "Mô tô, xe máy",
+    "image": "https://cf.shopee.vn/file/sg-11134201-22120-n9dqoupmv1kva8",
+    "count": 226
+  },
+  {
+    "id": "may-tinh-and-laptop",
+    "name": "Máy tính & Laptop",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ras8-m2jg3xs4xcc41b",
+    "count": 2750
+  },
+  {
+    "id": "van-phong-pham",
+    "name": "Văn Phòng Phẩm",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-megv0h3tqdj7f2",
+    "count": 372
+  },
+  {
+    "id": "thuc-pham-va-do-uong",
+    "name": "Thực phẩm và đồ uống",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ras8-m4ituciyrx7312",
+    "count": 2044
+  },
+  {
+    "id": "suc-khoe",
+    "name": "Sức Khỏe",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ra0g-m6i2mwgeg4fb76",
+    "count": 1024
+  },
+  {
+    "id": "sach-and-tap-chi",
+    "name": "Sách & Tạp Chí",
+    "image": "https://cf.shopee.vn/file/vn-11134207-7ra0g-m947ebm9fjwn15",
+    "count": 254
+  },
+  {
+    "id": "gaming-and-console",
+    "name": "Gaming & Console",
+    "image": "https://cf.shopee.vn/file/vn-11134207-820l4-mf9jgd9xotfw2e",
+    "count": 155
+  },
+  {
+    "id": "voucher-and-dich-vu",
+    "name": "Voucher & Dịch vụ",
+    "image": "https://cf.shopee.vn/file/8510c21c60a555f2b8cad12021929b1c",
+    "count": 5
+  }
+]
