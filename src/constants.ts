@@ -10,6 +10,9 @@ export interface Product {
   videoUrl?: string;
   discountPercent?: string;
   soldCount?: string;
+  ratingCount?: string;
+  likesCount?: string;
+  ratingScore?: string;
 }
 
 export const CATEGORIES_WITH_ICONS = [

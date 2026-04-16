@@ -36,6 +36,7 @@ function removeVietnameseTones(str: string) {
 }
 
 // Ensure table exists
+db.exec('DROP TABLE IF EXISTS products');
 db.exec(`
   CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,6 +55,9 @@ db.exec(`
     discountPercent TEXT,
     soldCount TEXT,
     numericSoldCount INTEGER,
+    ratingCount TEXT,
+    likesCount TEXT,
+    ratingScore TEXT,
     createdAt TEXT,
     searchName TEXT
   )
@@ -86,8 +90,9 @@ async function run() {
       INSERT INTO products (
         name, image, originalPrice, discountPrice, numericPrice, 
         category, badge, affiliateUrl, discountPercent, soldCount, 
-        numericSoldCount, createdAt, searchName, externalId
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        numericSoldCount, ratingCount, likesCount, ratingScore,
+        createdAt, searchName, externalId
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     db.transaction(() => {
@@ -113,6 +118,9 @@ async function run() {
         const image = getVal(['Ảnh_1', 'Image', 'ảnh', 'Hình ảnh', 'Thumbnail', 'Ảnh', 'Link ảnh', 'Hình']) || 'https://picsum.photos/seed/product/400/400';
         const discountPercent = getVal(['% ĐÃ GIẢM', '% ưu đãi giảm', '% ưu đãi', 'Ưu đãi', 'Giảm giá', '% Giảm giá', 'Discount', '%đã giảm', '% đã giảm', 'DiscountPercent']) || '';
         const soldCount = getVal(['Đã bán trong 30 ngày', 'Bán trong 30 ngày', 'SoldCount', 'Đã bán', 'Sold', 'Sales', 'Bán']) || '';
+        const ratingCount = getVal(['Đánh giá', 'Rating Count', 'Ratings']) || '';
+        const likesCount = getVal(['Thích', 'Likes', 'Like Count']) || '';
+        const ratingScore = getVal(['Điểm đánh giá', 'Rating Score', 'Rating']) || '';
         const badge = getVal(['Badge', 'Nhãn', 'Huy hiệu']) || '';
 
         if (!name && !image) continue;
@@ -139,7 +147,8 @@ async function run() {
         insert.run(
           name, image, originalPrice, discountPrice, numericPrice,
           category, badge, affiliateUrl, discountPercent, soldCount,
-          numericSoldCount, createdAt, searchName, extId
+          numericSoldCount, ratingCount, likesCount, ratingScore,
+          createdAt, searchName, extId
         );
       }
     })();
@@ -189,6 +198,9 @@ async function run() {
       u: p.affiliateUrl,
       pct: p.discountPercent,
       s: p.soldCount,
+      rc: p.ratingCount,
+      lc: p.likesCount,
+      rs: p.ratingScore,
       b: p.badge,
       np: p.numericPrice,
       ns: p.numericSoldCount
@@ -196,7 +208,7 @@ async function run() {
     fs.writeFileSync(path.join(dataDir, 'search-index.json'), JSON.stringify(searchIndex));
 
     // 4. Save Paginated Products
-    const pageSize = 692;
+    const pageSize = 100;
     const savePages = (items: any[], subDir: string) => {
       const dir = path.join(productsDir, subDir);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

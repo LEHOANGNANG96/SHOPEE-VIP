@@ -37,7 +37,8 @@ import {
   Rocket,
   FileJson,
   ArrowDown,
-  Info
+  Info,
+  Heart
 } from 'lucide-react';
 import { CATEGORIES, Product, PRODUCTS, formatPrice, formatDiscount, formatSoldCount } from './constants';
 import { auth, loginWithGoogle, logout, onAuthStateChanged, User } from './firebase';
@@ -82,7 +83,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [isLoading, setIsLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('random');
+  const [sortBy, setSortBy] = useState('newest');
   const [sessionSeed] = useState(() => Math.floor(Math.random() * 1000000));
 
 
@@ -187,6 +188,7 @@ export default function App() {
   const [fuse, setFuse] = useState<any>(null);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [isSearchIndexLoaded, setIsSearchIndexLoaded] = useState(false);
+  const [searchStatus, setSearchStatus] = useState<string>('');
   const [meta, setMeta] = useState<any>(null);
 
   const fetchMeta = async () => {
@@ -231,33 +233,41 @@ export default function App() {
     }
   };
 
-  const fetchSearchIndex = async () => {
+  const fetchSearchIndex = useCallback(async () => {
     if (isSearchIndexLoaded || isSearchLoading) return searchIndex;
     
     setIsSearchLoading(true);
+    setSearchStatus('Đang tối ưu dữ liệu tìm kiếm...');
     try {
       const res = await fetch('/data/search-index.json');
       if (res.ok) {
         const data = await res.json();
         setSearchIndex(data);
         const fuseInstance = new Fuse(data, {
-          keys: ['n', 'n_n', 'c'],
-          threshold: 0.4,
+          keys: [
+            { name: 'n', weight: 2 },
+            { name: 'n_n', weight: 1.5 },
+            { name: 'c', weight: 1 }
+          ],
+          threshold: 0.3, // Slightly stricter for better relevance
           distance: 100,
           ignoreLocation: true,
-          useExtendedSearch: true
+          useExtendedSearch: true,
+          includeScore: true
         });
         setFuse(fuseInstance);
         setIsSearchIndexLoaded(true);
+        setSearchStatus('');
         return data;
       }
     } catch (error) {
       console.error('Failed to fetch search index:', error);
+      setSearchStatus('Lỗi tải dữ liệu tìm kiếm');
     } finally {
       setIsSearchLoading(false);
     }
     return [];
-  };
+  }, [isSearchIndexLoaded, isSearchLoading, searchIndex]);
 
   useEffect(() => {
     if (isAuthReady && user) {
@@ -322,44 +332,21 @@ export default function App() {
 
   const fetchDiverseProducts = async () => {
     try {
-      // Try API first
-      const res = await fetch(`/api/products?limit=50&sort=random&seed=${sessionSeed}`);
+      // Try to get from page 1 of 'all' products first (fastest)
+      const res = await fetch('/data/products/all/1.json');
       if (res.ok) {
         const data = await res.json();
-        setDiverseProducts(data.products || []);
+        // Shuffle the 100 products from page 1
+        const shuffled = [...data.products].sort(() => Math.random() - 0.5);
+        setDiverseProducts(shuffled);
         return;
       }
       
-      // Fallback to Search Index if API fails (Vercel/Static mode)
-      let indexToUse = searchIndex;
-      if (!isSearchIndexLoaded) {
-        indexToUse = await fetchSearchIndex();
-      }
-      
-      if (indexToUse && indexToUse.length > 0) {
-        const seed = String(sessionSeed).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-        const shuffled = [...indexToUse]
-          .sort((a, b) => {
-            const hashA = (String(a.i).split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
-            const hashB = (String(b.i).split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) + seed) % 1000;
-            return hashA - hashB;
-          })
-          .slice(0, 50)
-          .map(item => ({
-            id: item.i,
-            name: item.n,
-            category: item.c,
-            discountPrice: item.p,
-            originalPrice: item.op,
-            image: item.img,
-            affiliateUrl: item.u,
-            discountPercent: item.pct,
-            soldCount: item.s,
-            badge: item.b,
-            numericPrice: item.np,
-            numericSoldCount: item.ns
-          }));
-        setDiverseProducts(shuffled);
+      // Fallback to API
+      const resApi = await fetch(`/api/products?limit=50&sort=random&seed=${sessionSeed}`);
+      if (resApi.ok) {
+        const data = await resApi.json();
+        setDiverseProducts(data.products || []);
       }
     } catch (e) {
       console.error('Failed to fetch diverse products:', e);
@@ -965,7 +952,7 @@ export default function App() {
       
       const currentSearch = customSearch !== undefined ? customSearch : activeSearchQuery;
       const currentCategory = customCategory || activeCategory;
-      const currentLimit = customLimit || 692;
+      const currentLimit = customLimit || 100;
       const currentSort = customSort || sortBy;
 
       const mapFromIndex = (item: any) => ({
@@ -978,6 +965,9 @@ export default function App() {
         affiliateUrl: item.u,
         discountPercent: item.pct,
         soldCount: item.s,
+        ratingCount: item.rc,
+        likesCount: item.lc,
+        ratingScore: item.rs,
         badge: item.b,
         numericPrice: item.np,
         numericSoldCount: item.ns
@@ -1001,34 +991,52 @@ export default function App() {
             let localFuse = fuse;
             if (!localFuse) {
               localFuse = new Fuse(indexToUse, {
-                keys: ['n', 'n_n', 'c'],
-                threshold: 0.4,
+                keys: [
+                  { name: 'n', weight: 2 },
+                  { name: 'n_n', weight: 1.5 },
+                  { name: 'c', weight: 1 }
+                ],
+                threshold: 0.35,
                 distance: 100,
                 ignoreLocation: true,
-                useExtendedSearch: true
+                useExtendedSearch: true,
+                includeScore: true
               });
             }
 
             const normalizedSearch = removeVietnameseTones(currentSearch).toLowerCase();
+            
+            // Try exact match or very close match first
             let fuseResults = localFuse.search(currentSearch);
             
-            if (fuseResults.length < 5 && currentSearch.trim().includes(' ')) {
-              const words = currentSearch.trim().split(/\s+/).filter(w => w.length > 1);
-              const normalizedWords = words.map(w => removeVietnameseTones(w).toLowerCase());
-              if (normalizedWords.length > 0) {
-                const broadQuery = `${normalizedSearch} | ${normalizedWords.join(' | ')}`;
+            // If few results, try searching by individual words with mandatory inclusion
+            if (fuseResults.length < 15 && currentSearch.trim().includes(' ')) {
+              const words = currentSearch.trim().split(/\s+/).filter(w => w.length > 2);
+              if (words.length > 0) {
+                // Extended search: 'word means include word
+                // We combine them with OR to get more results but keep them relevant
+                const broadQuery = words.map(w => `'${w}`).join(' '); 
                 const broadResults = localFuse.search(broadQuery);
+                
                 const seenIds = new Set(fuseResults.map((r: any) => r.item.i));
                 broadResults.forEach((r: any) => {
                   if (!seenIds.has(r.item.i)) {
+                    // Give broad results a slightly worse score to keep them below direct matches
+                    r.score = (r.score || 0) + 0.1; 
                     fuseResults.push(r);
                     seenIds.add(r.item.i);
                   }
                 });
               }
-            } else if (fuseResults.length === 0) {
+            }
+
+            // Final fallback: search by normalized name if still few results
+            if (fuseResults.length === 0) {
               fuseResults = localFuse.search(normalizedSearch);
             }
+
+            // Sort by score
+            fuseResults.sort((a: any, b: any) => (a.score || 0) - (b.score || 0));
             results = fuseResults.map((r: any) => r.item);
           } else {
             // No search, just filtering by category if needed
@@ -1038,9 +1046,9 @@ export default function App() {
           }
 
           // Apply Sorting
-          if (currentSort === 'price-asc') {
+          if (currentSort === 'price_asc') {
             results.sort((a, b) => (a.np || 0) - (b.np || 0));
-          } else if (currentSort === 'price-desc') {
+          } else if (currentSort === 'price_desc') {
             results.sort((a, b) => (b.np || 0) - (a.np || 0));
           } else if (currentSort === 'popular') {
             results.sort((a, b) => (b.ns || 0) - (a.ns || 0));
@@ -1066,34 +1074,39 @@ export default function App() {
           setHasMore(mappedResults.length > pageNum * currentLimit);
           setIsLoading(false);
           if (mappedResults.length > 0) setShowDemo(false);
+
+          // Pre-fetch next page JSON for even smoother scrolling
+          if (mappedResults.length > pageNum * currentLimit && !currentSearch && currentSort === 'newest') {
+            const nextPage = pageNum + 1;
+            const categoryPath = currentCategory === 'Tất cả' ? 'all' : slugify(currentCategory, { lower: true });
+            fetch(`/data/products/${categoryPath}/${nextPage}.json`).catch(() => {});
+          }
           return;
         }
       }
 
-      // 2. Handle Category/All (Newest - use pre-paginated static files)
-      if (currentSort === 'newest') {
-        let path = '/data/products/all';
-        if (currentCategory && currentCategory !== 'Tất cả') {
-          const catSlug = slugify(currentCategory, { lower: true, strict: true, locale: 'vi' });
-          path = `/data/products/${catSlug}`;
-        }
+      // 2. Handle Category/All (Newest or Fallback - use pre-paginated static files)
+      let path = '/data/products/all';
+      if (currentCategory && currentCategory !== 'Tất cả') {
+        const catSlug = slugify(currentCategory, { lower: true, strict: true, locale: 'vi' });
+        path = `/data/products/${catSlug}`;
+      }
 
-        const res = await fetch(`${path}/${pageNum}.json`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.products && data.products.length > 0) {
-            setShowDemo(false);
-          }
-          if (isLoadMore) {
-            setProducts(prev => [...prev, ...data.products]);
-          } else {
-            setProducts(data.products);
-          }
-          setTotalProducts(data.total);
-          setHasMore(data.page < data.totalPages);
-          setIsLoading(false);
-          return;
+      const res = await fetch(`${path}/${pageNum}.json`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.products && data.products.length > 0) {
+          setShowDemo(false);
         }
+        if (isLoadMore) {
+          setProducts(prev => [...prev, ...data.products]);
+        } else {
+          setProducts(data.products);
+        }
+        setTotalProducts(data.total);
+        setHasMore(data.page < data.totalPages);
+        setIsLoading(false);
+        return;
       }
 
       if (!isLoadMore) setProducts([]);
@@ -1109,7 +1122,7 @@ export default function App() {
 
   useEffect(() => {
     setPage(1);
-    fetchProducts(1, false, activeCategory, activeSearchQuery, 50, sortBy);
+    fetchProducts(1, false, activeCategory, activeSearchQuery, 100, sortBy);
   }, [activeCategory, activeSearchQuery, sortBy]);
 
   // Infinite Scroll Logic
@@ -1145,12 +1158,12 @@ export default function App() {
         if (entries[0].isIntersecting && hasMore && !isLoading) {
           const nextPage = page + 1;
           setPage(nextPage);
-          fetchProducts(nextPage, true);
+          fetchProducts(nextPage, true, activeCategory, activeSearchQuery, 100, sortBy);
         }
       },
       { 
         threshold: 0.1,
-        rootMargin: '200px' // Pre-fetch when 200px from bottom (reduced from 400px)
+        rootMargin: '1000px' // Aggressive pre-fetch (1000px from bottom)
       }
     );
 
@@ -1214,7 +1227,7 @@ export default function App() {
                 Shopee Official Mall Vietnam
               </span>
               <span className="text-[10px] md:text-xs text-gray-500 font-medium tracking-wider uppercase">
-                Hệ Sinh Thái Mua Sắm Thông Minh & Uy Tín Số 1
+                Hệ Sinh Thái Mua Sắm Thông Minh • Uy Tín • Đẳng Cấp Hàng Đầu
               </span>
             </div>
           </div>
@@ -1262,17 +1275,24 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="max-w-3xl"
+              className="w-full"
             >
-              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold mb-6 border border-emerald-100">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Link Sản Phẩm Chính Hãng
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-100">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Dịch Vụ Mua Sắm & Kết Nối Thương Hiệu Chính Hãng
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white rounded-full text-sm shadow-xl shadow-pink-200/50 animate-pulse hover:scale-110 transition-transform cursor-default">
+                  <Heart className="w-4 h-4 fill-white animate-bounce" />
+                  <span className="font-stylish text-lg tracking-wider drop-shadow-md">Julia Huyền</span>
+                </div>
               </div>
-              <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-                Shopee Official Mall Vietnam – <span className="text-shopee">Nền Tảng Mua Sắm Thông Minh, Uy Tín & Đẳng Cấp Số 1</span>
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.15] mb-8 tracking-tight">
+                Shopee Official Mall Vietnam <br className="hidden md:block" />
+                <span className="text-shopee">Hệ Sinh Thái Mua Sắm Thông Minh • Uy Tín • Đẳng Cấp Hàng Đầu</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed">
-                Shopee Official Mall Vietnam là nền tảng shop trưng bày hàng đầu Việt Nam hiện đang kết nối 30.000+ cửa hàng có nhu cầu quảng bá sản phẩm/dịch vụ và mạng lưới 15.000.000+ khách hàng, thúc đẩy tăng trưởng doanh thu bền vững và cung cấp các sản phẩm được yêu thích, chọn lọc kỹ lưỡng nhất hiện nay.
+              <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-5xl">
+                Chào mừng bạn đến với nền tảng kết nối thương hiệu hàng đầu Việt Nam. Với mạng lưới hơn 30.000+ gian hàng chính hãng và hàng triệu khách hàng tin dùng, chúng tôi tự hào mang đến giải pháp mua sắm an tâm, tiện lợi và những bộ sưu tập sản phẩm được chọn lọc khắt khe nhất dành riêng cho bạn.
               </p>
               <button 
                 onClick={scrollToDeals}
@@ -1357,6 +1377,13 @@ export default function App() {
 
             {/* Product Grid */}
             <div className="relative min-h-[400px]">
+              {searchStatus && (
+                <div className="mb-4 p-3 bg-shopee/5 border border-shopee/10 rounded-xl flex items-center gap-3 animate-pulse">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-shopee"></div>
+                  <span className="text-xs font-bold text-shopee">{searchStatus}</span>
+                </div>
+              )}
+              
               {isPending && (
                 <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[1px] flex items-center justify-center rounded-3xl pointer-events-none">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-shopee"></div>

@@ -1,8 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Pacifico&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-stylish: "Pacifico", cursive;
   --color-shopee: #EE4D2D;
   --color-shopee-hover: #d73211;
 }
@@ -22,6 +23,11 @@
 /* Performance optimizations for long lists */
 .product-grid {
   contain: layout style;
+}
+
+.product-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 300px; /* Estimated height of a product card */
 }
 
 .product-card-shadow {

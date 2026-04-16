@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Zap, TrendingUp, Heart, Plus, ExternalLink } from 'lucide-react';
+import { ChevronRight, Zap, TrendingUp, Heart, Plus, ExternalLink, Star } from 'lucide-react';
 import { Product, CATEGORIES_WITH_ICONS, formatPrice, formatDiscount, formatSoldCount } from '../constants';
 import { ProductCard } from './ProductCard';
 
@@ -218,14 +218,47 @@ const TopSearchSection = React.memo(({ allProducts }: { allProducts: Product[] }
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute top-0 left-0 bg-orange-600 text-white font-bold text-[10px] px-2 py-1 rounded-br-lg">
-                  TOP
+                <div className="absolute top-0 left-0 flex flex-col gap-1 z-10">
+                  <div className="bg-orange-600 text-white font-bold text-[9px] px-2 py-0.5 rounded-br-lg shadow-sm">
+                    TOP
+                  </div>
+                  <div className="bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-r-md shadow-sm w-fit">
+                    Yêu thích
+                  </div>
                 </div>
                 {formatDiscount(product.discountPercent, product.originalPrice, product.discountPrice) && (
                   <div className="absolute top-0 right-0 bg-yellow-400 text-shopee font-bold text-[10px] px-1.5 py-0.5 rounded-bl-lg z-10">
                     {formatDiscount(product.discountPercent, product.originalPrice, product.discountPrice)}
                   </div>
                 )}
+                
+                {/* Badges above Sold Count */}
+                <div className="absolute bottom-8 inset-x-0 flex justify-center z-10 gap-1 px-1">
+                  {product.ratingScore && (
+                    <div className="bg-white/90 backdrop-blur-sm text-amber-500 text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-amber-200 flex items-center gap-0.5 whitespace-nowrap">
+                      <Star className="w-1.5 h-1.5 fill-amber-500" />
+                      {product.ratingScore}
+                    </div>
+                  )}
+                  {product.ratingCount && (
+                    <div className="bg-white/90 backdrop-blur-sm text-blue-600 text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-blue-100 flex items-center gap-0.5 whitespace-nowrap">
+                      ĐG: {product.ratingCount}
+                    </div>
+                  )}
+                  {product.likesCount && (
+                    <div className="bg-white/90 backdrop-blur-sm text-shopee text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-shopee/20 flex items-center gap-0.5 whitespace-nowrap">
+                      <Heart className="w-1.5 h-1.5 fill-shopee" />
+                      {product.likesCount}
+                    </div>
+                  )}
+                  {!product.ratingCount && !product.likesCount && !product.ratingScore && (
+                    <div className="bg-white/90 backdrop-blur-sm text-shopee text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-shopee/20 flex items-center gap-0.5 whitespace-nowrap">
+                      <Heart className="w-1.5 h-1.5 fill-shopee" />
+                      Yêu thích
+                    </div>
+                  )}
+                </div>
+
                 <div className="absolute bottom-0 inset-x-0 bg-black/60 text-yellow-300 text-[10px] py-1 text-center font-bold border-t border-white/10">
                   {formatSoldCount(product.soldCount, 'Bán ') || `Bán ${Math.floor(Math.random() * 50) + 1}k+`} / tháng
                 </div>
@@ -365,11 +398,44 @@ const DynamicRecommendationsSection = React.memo(({ allProducts }: { allProducts
                         {formatDiscount(product.discountPercent, product.originalPrice, product.discountPrice)}
                       </div>
                     )}
-                    {product.badge && (
-                      <div className="absolute top-0 left-0 bg-shopee text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg">
-                        {product.badge}
+                    {/* Top-left Badge */}
+                    <div className="absolute top-0 left-0 flex flex-col gap-1 z-10">
+                      <div className="bg-orange-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-r-md shadow-sm w-fit">
+                        Yêu thích
                       </div>
-                    )}
+                    </div>
+                    
+                    {/* Badges above Sold Count Bar */}
+                    <div className="absolute bottom-8 inset-x-0 flex justify-center z-10 gap-1 px-1">
+                      {product.ratingScore && (
+                        <div className="bg-white/90 backdrop-blur-sm text-amber-500 text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-amber-200 flex items-center gap-0.5 whitespace-nowrap">
+                          <Star className="w-1.5 h-1.5 fill-amber-500" />
+                          {product.ratingScore}
+                        </div>
+                      )}
+                      {product.ratingCount && (
+                        <div className="bg-white/90 backdrop-blur-sm text-blue-600 text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-blue-100 flex items-center gap-0.5 whitespace-nowrap">
+                          ĐG: {product.ratingCount}
+                        </div>
+                      )}
+                      {product.likesCount && (
+                        <div className="bg-white/90 backdrop-blur-sm text-shopee text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-shopee/20 flex items-center gap-0.5 whitespace-nowrap">
+                          <Heart className="w-1.5 h-1.5 fill-shopee" />
+                          {product.likesCount}
+                        </div>
+                      )}
+                      {!product.ratingCount && !product.likesCount && !product.ratingScore && (
+                        <div className="bg-white/90 backdrop-blur-sm text-shopee text-[7px] font-bold px-1 py-0.5 rounded-full shadow-sm border border-shopee/20 flex items-center gap-0.5 whitespace-nowrap">
+                          <Heart className="w-1.5 h-1.5 fill-shopee" />
+                          Yêu thích
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Sold Count Bar */}
+                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-yellow-300 text-[10px] py-1 text-center font-bold border-t border-white/10 z-10">
+                      {formatSoldCount(product.soldCount, 'Bán ') || `Bán ${Math.floor(Math.random() * 50) + 1}k+`} / tháng
+                    </div>
                   </div>
                 <div className="text-xs font-medium text-gray-800 line-clamp-2 mb-1 group-hover:text-shopee transition-colors">
                   {product.name}
@@ -394,9 +460,6 @@ const DynamicRecommendationsSection = React.memo(({ allProducts }: { allProducts
                 <div className="flex flex-col items-start mb-2">
                   <span className="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded border border-emerald-100 uppercase">
                     Freeship
-                  </span>
-                  <span className="text-[9px] text-yellow-600 font-bold mt-0.5">
-                    {formatSoldCount(product.soldCount, 'Đã bán ') || `Đã bán ${Math.floor(Math.random() * 1000)}`}
                   </span>
                 </div>
                 <div className="mt-auto">

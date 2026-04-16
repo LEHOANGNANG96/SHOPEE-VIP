@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ExternalLink, ShoppingCart, Heart } from 'lucide-react';
+import { ExternalLink, ShoppingCart, Heart, Star, ThumbsUp } from 'lucide-react';
 import { Product, formatPrice, formatDiscount, formatSoldCount } from '../constants';
 
 interface ProductCardProps {
@@ -14,11 +14,10 @@ export const ProductCard = React.memo(({ product }: ProductCardProps) => {
 
   return (
     <motion.div 
-      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative"
+      className="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-100 overflow-hidden relative product-card"
     >
       <a 
         href={product.affiliateUrl || '#'} 
@@ -36,14 +35,41 @@ export const ProductCard = React.memo(({ product }: ProductCardProps) => {
         
         {/* Badges */}
         <div className="absolute top-0 left-0 flex flex-col gap-1">
-          {product.badge && (
-            <div className="bg-shopee text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg shadow-sm">
-              {product.badge}
-            </div>
-          )}
           <div className="bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-r-md shadow-sm w-fit">
             Yêu thích
           </div>
+        </div>
+
+        {/* Rating/Likes above Sold Count Bar */}
+        <div className="absolute bottom-8 inset-x-0 flex justify-center z-10 gap-1 px-1">
+          {product.ratingScore && (
+            <div className="bg-white/90 backdrop-blur-sm text-amber-500 text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-sm border border-amber-200 flex items-center gap-0.5 whitespace-nowrap">
+              <Star className="w-2 h-2 fill-amber-500" />
+              {product.ratingScore}
+            </div>
+          )}
+          {product.ratingCount && (
+            <div className="bg-white/90 backdrop-blur-sm text-blue-600 text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-sm border border-blue-100 flex items-center gap-0.5 whitespace-nowrap">
+              ĐG: {product.ratingCount}
+            </div>
+          )}
+          {product.likesCount && (
+            <div className="bg-white/90 backdrop-blur-sm text-shopee text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-sm border border-shopee/20 flex items-center gap-0.5 whitespace-nowrap">
+              <Heart className="w-2 h-2 fill-shopee" />
+              {product.likesCount}
+            </div>
+          )}
+          {!product.ratingCount && !product.likesCount && !product.ratingScore && (
+            <div className="bg-white/90 backdrop-blur-sm text-shopee text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-sm border border-shopee/20 flex items-center gap-0.5 whitespace-nowrap">
+              <Heart className="w-2 h-2 fill-shopee" />
+              Yêu thích
+            </div>
+          )}
+        </div>
+
+        {/* Sold Count Bar (Like Top Search) */}
+        <div className="absolute bottom-0 inset-x-0 bg-black/60 text-yellow-300 text-[10px] py-1 text-center font-bold border-t border-white/10 z-10">
+          {formatSoldCount(product.soldCount, 'Bán ') || `Bán ${Math.floor(Math.random() * 50) + 1}k+`} / tháng
         </div>
 
         {/* Discount Tag */}
@@ -92,9 +118,6 @@ export const ProductCard = React.memo(({ product }: ProductCardProps) => {
                 Freeship
               </span>
             </div>
-            <span className="text-[10px] text-gray-400 font-medium">
-              {formatSoldCount(product.soldCount, 'Đã bán ') || `Đã bán ${Math.floor(Math.random() * 1000)}`}
-            </span>
           </div>
 
           <a 
