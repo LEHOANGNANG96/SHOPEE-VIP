@@ -3,7 +3,7 @@ import compression from 'compression';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import archiver from 'archiver';
-import { createServer as createViteServer } from 'vite';
+// Dynamic import for vite in production
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
@@ -3416,6 +3416,7 @@ async function createApp() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     console.error('[SERVER] createViteServer() started');
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
