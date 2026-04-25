@@ -1284,7 +1284,7 @@ export default function App() {
                 </div>
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white rounded-full text-sm shadow-xl shadow-pink-200/50 animate-pulse hover:scale-110 transition-transform cursor-default">
                   <Heart className="w-4 h-4 fill-white animate-bounce" />
-                  <span className="font-stylish text-lg tracking-wider drop-shadow-md">Julia Huyền</span>
+                  <span className="font-stylish text-lg tracking-wider drop-shadow-md"> Liên Tục Cập Nhật Sản Phẩm 24/7 Mới Nhất</span>
                 </div>
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.15] mb-8 tracking-tight">
